@@ -29,3 +29,34 @@ now repeat for next unsorted element
 (https://en.wikipedia.org/wiki/Shellsort)
 
 */
+
+const insertionSort = (arr, comparator = defaultComparator) => {
+  console.log('initialArr')
+  console.log(arr)
+  console.log('=== === ===')
+  for (let i = 1; i < arr.length; i++) {
+    let compareIdx = i - 1
+    while (compareIdx >= 0 && comparator(arr[i], arr[compareIdx]) < 0) {
+      arr = swap(arr, i, compareIdx)
+      i = compareIdx
+      compareIdx--
+    }
+    console.log(arr)
+  }
+  return arr
+}
+
+const defaultComparator = (a, b) => {
+  if (a < b) return -1
+  else if (a > b) return 1
+  return 0
+}
+
+const swap = (arr, idx1, idx2) => {
+  const oldIdx1Val = arr[idx1]
+  arr[idx1] = arr[idx2]
+  arr[idx2] = oldIdx1Val
+  return arr
+}
+
+insertionSort([17, 7, 11 ,2, 38, 5])
