@@ -28,3 +28,57 @@ Stable Variant
 - Implement selection sort for a linked list (you can use your data structure implemention from earlier in the course). How does this impact performance and stability?
 
 */
+
+const selectionSort = (arr, comparator) => {
+  console.log('initial array')
+  console.log(arr)
+  console.log('============')
+  for (let i = 0; i < arr.length; i++) {
+    let minIdx = i
+    let minVal = arr[i]
+    const comparatorFunc = comparator || defaultComparator
+    for (let j = i + 1; j < arr.length; j++) {
+      if (comparatorFunc(arr[j], minVal) < 0) {
+        minVal = arr[j]
+        minIdx = j
+      }
+    }
+    console.log(`idx: ${minIdx} minValue: ${minVal}`)
+    swap(arr, i, minIdx)
+    console.log(arr)
+  }
+  return arr
+}
+
+const defaultComparator = (a, b) => {
+  if (a < b) return -1
+  else if (a > b) return 1
+  return 0
+}
+
+const swap = (arr, idx1, idx2) => {
+  const oldIdx1Val = arr[idx1]
+  arr[idx1] = arr[idx2]
+  arr[idx2] = oldIdx1Val
+  return arr
+}
+
+selectionSort([20, 1, 9, 8, 10, 13, 7])
+
+// initial array
+//   [20,  1, 9, 8, 10, 13, 7]
+// ============
+// idx: 1 minValue: 1
+//   [1, 20, 9, 8, 10, 13, 7]
+// idx: 6 minValue: 7
+//   [1,  7,  9, 8, 10, 13, 20]
+// idx: 3 minValue: 8
+//   [1,  7,  8, 9, 10, 13, 20]
+// idx: 3 minValue: 9
+//   [1,  7,  8, 9, 10, 13, 20]
+// idx: 4 minValue: 10
+//   [1,  7,  8, 9, 10, 13, 20]
+// idx: 5 minValue: 13
+//   [1,  7,  8, 9, 10, 13, 20]
+// idx: 6 minValue: 20
+//   [1,  7,  8, 9, 10, 13, 20]

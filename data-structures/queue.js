@@ -45,44 +45,105 @@ myQueue.until(7)
 => 3
 What's the time complexity?
 
-
-
-
  */
 
 function Queue(capacity) {
-  // implement me...
+  this._capacity = capacity || Infinity;
+  this._storage = {};
+  this._head = 0;
+  this._tail = 0;
 }
 
 Queue.prototype.enqueue = function(value) {
-  // implement me...
+  if (this.count() < this._capacity) {
+    this._storage[this._tail++] = value;
+    return this.count();
+  }
+  return 'Max capacity already reached. Remove element before adding a new one.';
 };
-// Time complexity:
+// Time complexity: O(1)
 
 Queue.prototype.dequeue = function() {
-  // implement me...
+  var element = this._storage[this._head];
+  delete this._storage[this._head];
+  if (this._head < this._tail) this._head++; // HELP: when does this happen?
+  return element;
 };
-// Time complexity:
+// Time complexity: O(1)
 
 Queue.prototype.peek = function() {
-  // implement me...
-};
+  // HELP: ??
+  return this._storage[this._head];
+}
+// Time complexity: O(1)
 
 Queue.prototype.count = function() {
-  // implement me...
+  return this._tail - this._head;
 };
-// Time complexity:
+// Time complexity: O(1)
 
+Queue.prototype.contains = function(value) {
+  for (var i = this._head; i < this._tail; i++) {
+    if (this._storage[i] === value) return true;
+  }
+  return false;
+};
+// Time complexity: O(n)
 
+Queue.prototype.until = function(value) {
+  for (var i = this._head; i < this._tail; i++) {
+    if (this._storage[i] === value) return i-this._head+1;
+  }
+  return null;
+};
+// Time complexity: O(n)
 
-/*
-*** Exercises:
+// var myQueue = new Queue(3);
+// console.log(myQueue.enqueue('a'), 'should be 1');
+// console.log(myQueue.enqueue('b'), 'should be 2');
+// console.log(myQueue.enqueue('c'), 'should be 3');
+// console.log(myQueue.enqueue('d'), 'should be Max capacity reached');
+// console.log(myQueue.dequeue(), 'should be a');
+// console.log(myQueue.count(), 'should be 2');
+// console.log(myQueue.peek(), 'should be b');
+// console.log(myQueue.count(), 'should be 2');
+// console.log(myQueue.contains('b'), 'should be true');
+// console.log(myQueue.contains('d'), 'should be false');
+// console.log(myQueue._storage, myQueue._head);
+// console.log(myQueue.until('b'), 'should be 1');
+// console.log(myQueue.until('c'), 'should be 2');
+// console.log(myQueue.until('d'), 'should be null');
 
-1. Implement a queue using two stacks.
+// ____________________________________________
+// EXERCISES
+// Implement a queue using two stacks
+function Stack(capacity) {
+  this._capacity = capacity || Infinity;
+  this._storage = {};
+  this._count = 0;
+}
 
-2. Implement a double-ended queue, with the following methods: enqueueLeft, dequeueLeft, enqueueRight, dequeueRight.
+Stack.prototype.push = function(value) {
+  if (this._count < this._capacity) {
+    this._storage[this._count++] = value;
+    return this._count;
+  }
+  return 'Max capacity already reached. Remove element before adding a new one.';
+};
 
-3. Given a tree, print out the value of each node in breadth-first order using a queue data structure.
+Stack.prototype.pop = function() {
+  var value = this._storage[--this._count];
+  delete this._storage[this._count];
+  if (this._count < 0) {
+    this._count = 0;
+  }
+  return value;
+};
 
+Stack.prototype.peek = function() {
+  return this._storage[this._count-1];
+}
 
- */
+Stack.prototype.count = function() {
+  return this._count;
+};
