@@ -22,36 +22,30 @@ Variants:
 
 */
 
-const quicksort = (array, lo, hi) => {
-  if (lo === undefined) lo = 0
-  if (hi === undefined) hi = array.length - 1
-
+const quicksort = (arr, lo = 0, hi = arr.length - 1) => {
   if (lo < hi) {
-    // partition array
-    const p = partition(array, lo, hi)
-    console.log('partitioning from', lo, 'to', hi, '=> partition:', p)
-    // sort subarrays
-    quicksort(array, lo, p - 1)
-    quicksort(array, p + 1, hi)
+    const p = partition(arr, lo, hi)
+    console.log(`p: ${p}`)
+    quicksort(arr, lo, p - 1)
+    quicksort(arr, p + 1, hi)
   }
-
-  // for initial call, return sorted array
-  if (hi - lo === array.length - 1) return array
+  return arr
 }
 
 /**
- * double swap partition
+ * double swap
  */
 const partition = (arr, lo, hi) => {
+  const pivot = arr[hi]
   let currPivotIdx = hi
-  const pivot = arr[currPivotIdx]
   let pivotLoc = lo
+  // for (let i = 0; i < hi; i++) {
   for (let i = lo; i < hi; i++) {
+    if (pivotLoc === currPivotIdx) break
     if (arr[pivotLoc] < pivot) pivotLoc++
     else {
-      if (pivotLoc === currPivotIdx) break
-      swap(arr, currPivotIdx - 1, currPivotIdx)
-      if (currPivotIdx - pivotLoc > 1) swap(arr, pivotLoc, currPivotIdx)
+      swap(arr, currPivotIdx, currPivotIdx - 1)
+      if (1 < currPivotIdx - pivotLoc) swap(arr, pivotLoc, currPivotIdx)
       currPivotIdx--
     }
   }
@@ -59,31 +53,25 @@ const partition = (arr, lo, hi) => {
 }
 
 /**
- Lomuto partition scheme
- **/
+ * lamuto partition scheme
+ */
 // const partition = (arr, lo, hi) => {
-//   // choose last element as pivot
 //   const pivot = arr[hi]
-//   // keep track of index to put pivot at
 //   let pivotLoc = lo
-//   // iterate through subarray and if element <= pivot, place element before pivotLoc
 //   for (let i = lo; i < hi; i++) {
 //     if (arr[i] <= pivot) {
 //       swap(arr, pivotLoc, i)
 //       pivotLoc++
 //     }
 //   }
-//   // move pivot to its proper location
 //   swap(arr, pivotLoc, hi)
 //   return pivotLoc
 // }
 
-const swap = (arr, i1, i2) => {
-  if (i1 === i2) return
-  const temp = arr[i1]
-  arr[i1] = arr[i2]
-  arr[i2] = temp
-  // console.log('swapped', arr[i1], arr[i2], 'in', arr)
+const swap = (arr, idx1, idx2) => {
+  const oldIdx1Val = arr[idx1]
+  arr[idx1] = arr[idx2]
+  arr[idx2] = oldIdx1Val
   return arr
 }
 

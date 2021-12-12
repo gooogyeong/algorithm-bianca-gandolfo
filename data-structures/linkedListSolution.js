@@ -40,7 +40,7 @@ myList.findNode(value)
 Say we have a linked list that has 100 items and we want to add an item to the very end. How would you do that with your current implementation? How can you modify the data structure to add an item to the end in constant time?
 
 myList.appendToTail(value)
-=> new tail node
+=> tail node
 add a new tail node at the end of the list with the associated value passed in
 
 myList.removeTail()
@@ -66,8 +66,10 @@ myList.removeBefore(refNode)
 => removed node
 remove node before the refNode passed in
 
+*SOLUTION: See doublyLinkedList.js file*
 
-*** Additional Exercises:
+
+*** Extra Credit:
 
 Implement a circularly linked list:
 https://en.wikipedia.org/wiki/Linked_list#Circularly_linked_list
@@ -77,142 +79,127 @@ Reimplement stack and queue data structures using linked lists.
 
  */
 
-// PART 1
-
 function Node (value) {
   this.next = null
   this.value = value
 }
 
 function LinkedList (headValue) {
-  if (!headValue) {
-    console.log('head value cannot be empty')
-    return
-  }
+  if (headValue === undefined) console.log('Must provide value for first node')
   this.head = new Node(headValue)
   this.tail = this.head
 }
 
 LinkedList.prototype.forEach = function (callback) {
-  // implement me...
   let node = this.head
   while (node) {
     callback(node.value)
     node = node.next
   }
 }
-// Time complexity:
 
 LinkedList.prototype.print = function () {
-  // implement me...
-  const values = []
-  this.forEach(val => {
-    values.push(val)
+  const result = []
+  this.forEach(function (value) {
+    result.push(value)
   })
-  return values.join(', ')
+  return result.join(', ')
+  // this.forEach((value) => {
+  //   console.log(value)
+  // })
 }
-// Time complexity:
 
 LinkedList.prototype.insertAfter = function (node, value) {
-  // implement me...
+  // get reference to former next
   const oldNext = node.next
+  // create new node
   const newNext = new Node(value)
-  oldNext.next = newNext
+  // store it as the new next
+  node.next = newNext
+  // set next for the new node to be the old next
   newNext.next = oldNext
+  // if reference node is tail, set tail to newNext
   if (this.tail === node) this.tail = newNext
   return newNext
 }
-// Time complexity:
 
 LinkedList.prototype.removeAfter = function (node) {
-  // implement me...
-  const removeNode = node.next
-  if (!removeNode) {
-    console.log('nothing to remove')
-    return
-  }
-  const newNext = removeNode.next
+  // store reference to removed node
+  const removedNode = node.next
+  // if node is tail, then there's nothing to remove
+  if (!removedNode) return 'Nothing to remove'
+  // get reference to node after removed node
+  const newNext = removedNode.next
+  // set newNext as the next node
   node.next = newNext
-  removeNode.next = null
-
-  if (this.tail === removeNode) this.tail = node
-
-  return removeNode
+  // remove reference from removed node to linked list
+  removedNode.next = null
+  // if removedNode is tail, set tail to node
+  if (removedNode === this.tail) this.tail = node
+  return removedNode
 }
-// Time complexity:
 
 LinkedList.prototype.insertHead = function (value) {
-  // implement me...
   const newHead = new Node(value)
   const oldHead = this.head
   this.head = newHead
   newHead.next = oldHead
-  return newHead
+  return this.head
 }
-// Time complexity:
 
 LinkedList.prototype.removeHead = function () {
-  // implement me...
   const oldHead = this.head
   const newHead = oldHead.next
-  oldHead.next = null
   this.head = newHead
+  oldHead.next = null
   return oldHead
 }
 
 LinkedList.prototype.findNode = function (value) {
-  // implement me...
   let node = this.head
   while (node) {
     if (node.value === value) return node
     node = node.next
   }
+  return 'No node with value: ' + value + ' found.'
 }
-// Time complexity:
 
 LinkedList.prototype.appendToTail = function (value) {
-  // implement me...
+  // with myList.tail property: O(1)
   const newTail = new Node(value)
-  const oldTail = this.tail
+  this.tail.next = newTail
   this.tail = newTail
-  oldTail.next = newTail
   return newTail
+
+  // // without myList.tail property: O(n)
+  // var node = this.head;
+  // while(node.next) {
+  //   node = node.next;
+  // }
+  // node.next = newTail;
+  // return newTail
 }
-// Time complexity:
 
-// PART 2:
+const myList = new LinkedList(0)
 
-LinkedList.prototype.insertBefore = function (node, value) {
-  // implement me...
-}
-// Time complexity:
-
-LinkedList.prototype.removeBefore = function (node) {
-  // implement me...
-}
-// Time complexity:
-
-/*
-*** Exercises:
-
-1. Implement a stack using a linked list.
-
-2. Implement a queue using a linked list.
-
-3. Write a method that remove duplicates from an unsorted linked list. What is the time complexity? Re-implement the method without using any additional storage structure (constant space complexity). What is the time complexity?
-
-4. Reverse a linked list. Do not use any additional storage structures.
-
-5. Find the kth to last element of a singly linked list.
-
-6. Detect if a linked list has a loop.
-
-7. Check if a linked list is a palindrome.
-
-8. Given two linked lists that represent numbers, return a linked list that represents the sum of those numbers:
-  4 2 5        (4 -> 2 -> 5)
-+ 7 3 1        (7 -> 3 -> 1)
---------
-1 1 5 6   (1 -> 1 -> 5 -> 6)
-
- */
+console.log(myList.print(), 'should be 0')
+console.log(myList.insertAfter(myList.head, 1), 'should be 1')
+console.log(myList.print(), 'should be 0, 1')
+console.log(myList.insertAfter(myList.head.next, 3), 'should be 3')
+console.log(myList.print(), 'should be 0, 1, 3')
+console.log(myList.insertAfter(myList.head.next, 2), 'should be 2')
+console.log(myList.print(), 'should be 0, 1, 2, 3')
+console.log(myList.removeAfter(myList.head), 'should be 1')
+console.log(myList.print(), 'should be 0, 2, 3')
+console.log(myList.insertHead(-1), 'should be -1')
+console.log(myList.print(), 'should be -1, 0, 2, 3')
+console.log(myList.removeHead(), 'should be -1')
+console.log(myList.print(), 'should be 0, 2, 3')
+console.log(myList.appendToTail(4), 'should be 4')
+console.log(myList.print(), 'should be 0, 2, 3, 4')
+console.log(myList.findNode(0) === myList.head, 'should be true')
+console.log(myList.findNode(3) === myList.head.next.next, 'should be true')
+myList.insertAfter(myList.findNode(2), 2.5)
+console.log(myList.print(), 'should be 0, 2, 2.5, 3, 4')
+myList.removeAfter(myList.findNode(2))
+console.log(myList.print(), 'should be 0, 2, 3, 4')
