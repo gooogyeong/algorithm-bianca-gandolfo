@@ -127,9 +127,9 @@ class BST {
   }
   */
 
-  const bst = new BST(30)
+  // const bst = new BST(30)
 
-  bst.insert(10).insert(15).insert(12).insert(40).insert(35).insert(50);
+  // bst.insert(10).insert(15).insert(12).insert(40).insert(35).insert(50);
 
 // console.log([...bst.inOrderTraversal()].map(x => x.value)) // [10, 12, 15, 30, 35, 40, 50]
 
