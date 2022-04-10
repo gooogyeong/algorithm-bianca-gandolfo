@@ -58,70 +58,196 @@ Resize the hash table:
 */
 
 // Simple hashing function to use in your implementation
-function simpleHash(str, tableSize) {
-  var hash = 0;
-  for (var i=0; i<str.length; i++) {
-    hash += str.charCodeAt(i) * (i+1);
+function simpleHash (str, tableSize) {
+  let hash = 0
+  // console.log('=== simpleHash START ===')
+  // console.log(str) // fooAgain
+  for (let i = 0; i < str.length; i++) {
+    // console.log(str[i]) // f o o A g a i n
+    // console.log(str.charCodeAt(i)) 102 111 111 65 103 97 105 110
+    hash += str.charCodeAt(i) * (i + 1)
   }
-  return hash % tableSize;
+  // console.log(hash) // 3629 = 102 + 111 * 2 + 111 * 3 + 65 * 4 + 103 * 5 + 97 * 6 + 105 * 7 + 110 * 8
+  return hash % tableSize // 4
 }
+
 // source: http://pmav.eu/stuff/javascript-hashing-functions/source.html
 
-function HashTable(/* ??? */) {
-  // implement me...
+function HashTable (tableSize) {
+  this._size = tableSize
+  this._storage = []
+  this._count = 0
 }
 
 // This is a helper method that you may want to implement to help keep your code DRY
 // You can implement the hash table methods without it.
 // I recommend skipping it and coming back if you find that it will be useful
-HashTable.prototype.find = function(key) {
-  // implement me...
+HashTable.prototype.find = function (key) {
+  const hash = simpleHash(key, this._size)
+  this._storage[hash] = this._storage[hash] || []
+  const bucket = this._storage[hash]
+
+  let match
+  let matchIndex
+  bucket.forEach(function (item, index) {
+    if (item.hasOwnProperty(key)) {
+      match = item
+      matchIndex = index
+    }
+  })
   return {
-    match: match,
-    bucket: bucket,
-    matchIndex: matchIndex
-  };
-};
+    match,
+    bucket,
+    matchIndex
+  }
+}
 
-HashTable.prototype.set = function(key, value) {
-  // implement me...
-};
-// Time complexity:
+// O(n)
+HashTable.prototype.resize = function (newSize) {
+  const oldStorage = this._storage
+  this._size = newSize
+  this._count = 0
+  this._storage = []
+  const that = this
+  oldStorage.forEach(function (bucket) {
+    bucket.forEach(function (item) {
+      const key = Object.keys(item)[0]
+      that.set(key, item[key])
+    })
+  })
+}
 
-HashTable.prototype.get = function(key) {
-  // implement me...
-};
-// Time complexity:
+// O(1)
+HashTable.prototype.set = function (key, value) {
+  const { match, bucket } = this.find(key)
+  // if match exists, update value
+  if (match) match[key] = value
+  // if not, add new object with key/value pair
+  else {
+    const newItem = {}
+    newItem[key] = value
+    this._count++
+    bucket.push(newItem)
+    if (this._count > 0.75 * this._size) {
+      this.resize(2 * this._size)
+    }
+  }
+  return this
+}
 
-HashTable.prototype.has = function(key) {
-  // implement me...
-};
-// Time complexity:
+const myMap = new HashTable(10)
+console.log(myMap.set('key', 'value'), 'should be HT object')
+/*
+HashTable {
+  _size: 10,
+  _storage: [ <2 empty items>, [ [Object] ] ],
+  _count: 1
+} should be HT object
+* */
 
-HashTable.prototype.delete = function(key) {
-  // implement me...
-};
-// Time complexity:
+// Time complexity: O(1)
+// => value associated with key, or undefined if none
+HashTable.prototype.get = function (key) {
+  // key = 'key'
+  const match = this.find(key).match // { key: 'value' }
+  // if key is found, match is an object {key: value}
+  // if not, match is undefined
+  return match && match[key]
+}
 
-HashTable.prototype.count = function() {
-  // implement me...
-};
-// Time complexity:
+console.log(myMap.get('key'), 'should be value')
+/*
+HashTable.prototype.get = function (key) {
+  // key = 'key'
+  const match = this.find(key).match // { key: 'value' }
+  return match && match[key]
+}
+* */
+/*
+HashTable.prototype.find = function (key) {
+  const hash = simpleHash(key, this._size)
+  this._storage[hash] = this._storage[hash] || []
+  const bucket = this._storage[hash]
+  console.log(hash) // 2
+  console.log(this._storage[hash]) // [{ key: 'value ' }]
+  let match
+  let matchIndex
+  bucket.forEach(function (item, index) {
+    if (item.hasOwnProperty(key)) {
+      match = item
+      matchIndex = index
+    }
+  })
+  return {
+    match,
+    bucket,
+    matchIndex
+  }
+}
+* */
 
-HashTable.prototype.forEach = function(callback) {
-  // implement me...
-};
-// Time complexity:
+// Time Complexity: O(1)
+HashTable.prototype.has = function (key) {
+  return !!this.find(key).match
+}
+console.log(myMap.has('key'), 'should be true')
+console.log(myMap.has('foo'), 'should be false')
+// => true/false depending on if a value has been associated with the key
 
+// Time complexity: O(1)
+HashTable.prototype.delete = function (key) {
+  const { match, bucket, matchIndex } = this.find(key)
+  if (match) {
+    bucket.splice(matchIndex, 1)
+    this._count--
+    if (this._count < 0.25 * this._size) {
+      this.resize(0.5 * this._size)
+    }
+  }
+  return !!match
+}
 
+console.log(myMap.delete('key'), 'should be true')
+console.log(myMap.delete('foo'), 'should be false')
+console.log(myMap, 'should have no elements')
+// => true if a value was associated with the key
+// => false if a value was never associated with the key
+// Remove any value associated to the key
+
+// Time Complexity: O(1)
+HashTable.prototype.count = function () {
+  return this._count
+}
+console.log(myMap.count(), 'should be 0')
+// => integer number of key/value pairs in hash table
+
+// Time complexity: O(n)
+HashTable.prototype.forEach = function (callback) {
+  this._storage.forEach(function (bucket) {
+    bucket = bucket || []
+    bucket.forEach(function (item) {
+      callback(item)
+    })
+  })
+}
 
 /*
 *** Exercises:
 
 1. Implement a hash table with a binary search tree.
-
-2. Given two arrays with values, return the values that are present in both. Do this in linear time.
-
-3. Implement a hash table using linked lists for collision-handling. Why might this be preferable to using arrays.
-
 */
+console.log('count', myMap._count, 'should be 0')
+console.log('size', myMap._size, 'should be 5')
+myMap.set('foo', 'bar')
+myMap.set('fooAgain', 'barAgain')
+myMap.set('a', 1)
+myMap.set('b', 2)
+myMap.forEach(console.log)
+console.log('count', myMap._count, 'should be 4')
+console.log('size', myMap._size, 'should be 10 (doubled)')
+myMap.delete('a')
+console.log('count', myMap._count)
+console.log('size', myMap._size)
+myMap.delete('b')
+console.log('count', myMap._count)
+console.log('size', myMap._size, 'should be 5 (halved)')
